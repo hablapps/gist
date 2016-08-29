@@ -1,0 +1,24 @@
+This repository contains little snippets of code that illustrate techniques
+from functional programming, mainly.
+
+Current gists
+=============
+
+This is the list of current gists:
+
+* [ADTs](src/test/scala/ADTs.scala). How do we represent embedded DSLs using algebraic data types, and how
+do we implement both compositional and non-compositional interpreters. 
+* [Church encodings](src/test/scala/ChurchEncodings.scala). What are Church encodings and how can we pattern match against
+them.
+* [Church vs. ADTs](src/test/scala/InitialAlgebras.scala). What is the relationship between these encodings? Algebras to the
+rescue!
+
+Executing gists
+===============
+
+Each gist is implemented as a Scalatest file. In order to check the assertions, 
+just enter `sbt` and launch the test (e.g. `ADTs`):
+
+```scala
+> test-only org.hablapps.gist.ADTs
+```
