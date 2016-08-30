@@ -2,13 +2,14 @@ package org.hablapps.gist
 import org.scalatest._
 
 /*
-The purpose of this gist is explaining what are church encodings of data types. 
-We will use the common domain of arithmetic expressions to illustrate our findings. 
+The purpose of this gist is explaining what are church encodings of data types,
+and how can we implement functions that use pattern matching over them. We will 
+use the common domain of arithmetic expressions to illustrate our findings. 
 
 Throughout the code some references will be made to the deep encoding of arithmetic 
 expressions using ADTs. You can find the relevant code in this gist: 
 
-http://....
+https://github.com/hablapps/gist/blob/master/src/test/scala/ADTs.scala
 
 For the most part, this gist can be considered as an Scala translation of this post:
 
@@ -329,10 +330,12 @@ class ChurchEncodings extends FlatSpec with Matchers{
   object ScalaExtractors{
     import Church._, Expr._, DeconstructingChurch.{pushNeg => _, _}
 
-    // In order to achieve this extra level of conciseness and clarity, we use
-    // Scala extractors. These are given to us by the Scala compiler each time
-    // we implement a case class. Since we did not implement `Expr` as a case 
-    // class, we have to implement them ourselves. 
+    /*
+    In order to achieve this extra level of conciseness and clarity, we use
+    Scala extractors. These are given to us by the Scala compiler each time
+    we implement a case class. Since we did not implement `Expr` as a case 
+    class, we have to implement them ourselves. 
+    */
 
     object Lit{
       def unapply(e: Expr): Option[Int] = 

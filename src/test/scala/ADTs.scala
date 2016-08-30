@@ -5,10 +5,8 @@ import org.scalatest._
 /*
 This gist revolves around deep embeddings using a simple language for arithmetic 
 expressions. Besides dealing with ADTs, we will also mention interpreters, both 
-compositional and non-compositional ones. 
-
-Algebras are not explicitly used anywhere in the code. For a comparison
-with algebraic concepts, see this gist: ...
+compositional and non-compositional ones, and show how can we implement compositional
+interpreters using `folds` (aka catamorphisms). 
 */
 class ADTs extends FlatSpec with Matchers{
 

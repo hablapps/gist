@@ -9,8 +9,8 @@ for all purposes (functionally speaking, since they may differ significantly in 
 concerns such as efficiency, modularity, etc.).
 
 We will make reference to these others gists, on ADTs and Church encodings, respectively: 
-* ...
-* ...
+* https://github.com/hablapps/gist/blob/master/src/test/scala/ADTs.scala
+* https://github.com/hablapps/gist/blob/master/src/test/scala/ChurchEncodings.scala
 
 There are two basic ways of representing algebras in Scala: as functor algebras, 
 and as object algebras. We'll follow the later approach in this gist. For more information on
@@ -216,11 +216,13 @@ class InitialAlgebras extends FlatSpec with Matchers{
   /*
   Now, please note the close similarity between the representation of arithmetic expressions
   using ad-hoc polymorphic functions such as `e0` and `e1`, and the Church encoding of 
-  arithmetic expressions: ....
+  arithmetic expressions: 
+
+  https://github.com/hablapps/gist/blob/master/src/test/scala/ChurchEncodings.scala#L45
 
   Essentially, the Church encoding is just a reification of a polymorphic function which
   creates an expression using a number of constructors. This polymorphic function is almost
-  identical to the ones that we wrote before, `e0` and `e1`. The difference just being that
+  identical to the ones that we wrote before, `e0` and `e1`, the difference just being that
   the constructors in these later functions are packaged within an algebra.
 
   It's actually very easy to come up with the proof that Church encodings are initial 
@@ -238,18 +240,22 @@ class InitialAlgebras extends FlatSpec with Matchers{
         _(alg.lit, alg.neg, alg.add)
     }
 
-    // Using the Church algebra we can write the expressions `e0` and `e1` step-by-step,
-    // instead of performing a single instantiation (not saying that this is good, simply
-    // that you can).
+    /*
+    Using the Church algebra we can write the expressions `e0` and `e1` step-by-step,
+    instead of performing a single instantiation (not saying that this is good, simply
+    that you can).
+    */
 
     import initial._, algebra._
 
     val e0: Expr = add(lit(1),lit(2))
     val e1: Expr = add(neg(add(neg(lit(1)),lit(2))),lit(3))
 
-    // Being a canonical domain, we can interpret Church expressions as integers, string, 
-    // or even ADT expressions (another canonical domain), using their corresponding 
-    // interpreters.
+    /*
+    Being a canonical domain, we can interpret Church expressions as integers, string, 
+    or even ADT expressions (another canonical domain), using their corresponding 
+    interpreters.
+    */
     import ADTs.{Lit, Add, Neg}
 
     fold(ADTAlgebra.algebra)(e0) shouldBe Add(Lit(1),Lit(2))

@@ -1,10 +1,11 @@
-This repository contains little snippets of code that illustrate techniques
+This repository contains little (and not so little) snippets of code that illustrate techniques
 from functional programming, mainly.
 
 Current gists
 =============
 
-This is the list of current gists:
+Some of these gists make reference or build upon results of previous ones. You'll also find
+some explanations throughout the code, although, surely, not enough to make them self-contained. This is the list of current gists:
 
 * [ADTs](src/test/scala/ADTs.scala). How do we represent embedded DSLs using algebraic data types, and how
 do we implement both compositional and non-compositional interpreters. 
@@ -16,8 +17,7 @@ rescue!
 Executing gists
 ===============
 
-Each gist is implemented as a Scalatest file. In order to check the assertions, 
-just enter `sbt` and launch the test (e.g. `ADTs`):
+Each gist is implemented as a Scalatest file. In order to check its assertions, just enter `sbt` and launch the test. For instance, in order to launch the `ADTs` gist, enter `sbt` and type the following:
 
 ```scala
 > test-only org.hablapps.gist.ADTs
