@@ -6,7 +6,10 @@ scalaBinaryVersion := "2.11"
 
 organization := "org.hablapps"
 
+addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
+
 libraryDependencies ++= Seq(
+  "org.typelevel" %% "cats" % "0.7.0",
   "org.scalatest" %% "scalatest" % "2.2.6"
 )
 

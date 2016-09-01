@@ -13,6 +13,8 @@ do we implement both compositional and non-compositional interpreters.
 them.
 * [Church vs. ADTs](src/test/scala/InitialAlgebras.scala). What is the relationship between these encodings? Algebras to the
 rescue!
+* [GADTs](src/test/scala/GADTs.scala). How do we represent embedded DSLs using generalized algebraic data types, and how
+do we implement both compositional and non-compositional interpreters.
 
 Executing gists
 ===============
