@@ -2,6 +2,8 @@ name := "hablapps"
 
 scalaVersion := "2.11.8"
 
+scalaOrganization := "org.typelevel"
+
 scalaBinaryVersion := "2.11"
 
 organization := "org.hablapps"
@@ -16,6 +18,7 @@ libraryDependencies ++= Seq(
 scalacOptions ++= Seq(
   "-unchecked",
   "-deprecation",
+  "-Ypartial-unification",
   // "-Xprint:typer",
   // "-Xlog-implicit-conversions",
   "-feature",
