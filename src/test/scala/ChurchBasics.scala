@@ -124,4 +124,12 @@ class ChurchBasics extends FlatSpec with Matchers {
       def apply[A](nil: A, cons: (Int, A) => A): A = l1(l2(nil, cons), cons)
     }
   }
+
+  "Lists expressions" should "work" in {
+    import IntList._
+
+    concat(Nil, Nil).apply[Int](0, _ + _) shouldBe 0
+    concat(Cons(1, Nil), Nil).apply[Int](0, _ + _) shouldBe 1
+    concat(Cons(1, Nil), Cons(2, Nil)).apply[Int](0, _ + _) shouldBe 3
+  }
 }
