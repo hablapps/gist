@@ -22,17 +22,11 @@ class ChurchBasics extends FlatSpec with Matchers {
 
   object Bool {
 
-    def and(b1: Bool, b2: Bool): Bool = new Bool {
-      def apply[A](t: A, f: A): A = b1(b2(t, f), f)
-    }
+    def and(b1: Bool, b2: Bool): Bool = b1(b2(True, False), False)
 
-    def or(b1: Bool, b2: Bool): Bool = new Bool {
-      def apply[A](t: A, f: A): A = b1(t, b2(t, f))
-    }
+    def or(b1: Bool, b2: Bool): Bool = b1(True, b2(True, False))
 
-    def negate(b: Bool): Bool = new Bool {
-      def apply[A](t: A, f: A): A = b(f, t)
-    }
+    def negate(b: Bool): Bool = b(False, True)
 
     def _if[A](b: Bool)(_then: A, _else: A): A = b(_then, _else)
   }
@@ -121,10 +115,7 @@ class ChurchBasics extends FlatSpec with Matchers {
   }
 
   object IntList {
-
-    def concat(l1: IntList, l2: IntList): IntList = new IntList {
-      def apply[A](nil: A, cons: (Int, A) => A): A = l1(l2(nil, cons), cons)
-    }
+    def concat(l1: IntList, l2: IntList): IntList = l1(l2, Cons)
   }
 
   "Lists expressions" should "work" in {
