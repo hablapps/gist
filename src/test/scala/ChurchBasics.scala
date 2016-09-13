@@ -65,19 +65,21 @@ class ChurchBasics extends FlatSpec with Matchers {
   }
 
   object One extends Nat {
-    def apply[A](zero: A, succ: A => A): A = succ(zero)
+    def apply[A](zero: A, succ: A => A): A = succ(Zero[A](zero, succ))
   }
 
-  object Two extends Nat {
-    def apply[A](zero: A, succ: A => A): A = succ(succ(zero))
+  case class Succ(n: Nat) extends Nat {
+    def apply[A](zero: A, succ: A => A): A = succ(n(zero, succ))
   }
 
   object Nat {
     import Bool.negate
 
-    def add(n1: Nat, n2: Nat): Nat = new Nat {
-      def apply[A](zero: A, succ: A => A): A = n2(n1(zero, succ), succ)
-    }
+    def add(n: Nat, m: Nat): Nat = n(m, Succ)
+
+    def mul(n: Nat, m: Nat): Nat = n[Nat](Zero, add(m, _))
+
+    def exp(n: Nat, m: Nat): Nat = n[Nat](One, mul(m, _))
 
     def isEven(n: Nat): Bool = n(True, negate)
 
@@ -87,21 +89,21 @@ class ChurchBasics extends FlatSpec with Matchers {
   "Nat expressions" should "work" in {
     import Nat._
 
-    isEven(Zero) (true, false) shouldBe true
-    isEven(One)  (true, false) shouldBe false
-    isEven(Two)  (true, false) shouldBe true
+    isEven(Zero)      (true, false) shouldBe true
+    isEven(One)       (true, false) shouldBe false
+    isEven(Succ(One)) (true, false) shouldBe true
 
-    isOdd(Zero)  (true, false) shouldBe false
-    isOdd(One)   (true, false) shouldBe true
-    isOdd(Two)   (true, false) shouldBe false
+    isOdd(Zero) (true, false) shouldBe false
+    isOdd(One)  (true, false) shouldBe true
 
     isEven(add(Zero, Zero)) (true, false) shouldBe true
     isEven(add(Zero, One))  (true, false) shouldBe false
     isEven(add(One,  Zero)) (true, false) shouldBe false
     isEven(add(One,  One))  (true, false) shouldBe true
-    isEven(add(One,  Two))  (true, false) shouldBe false
-    isEven(add(Two,  One))  (true, false) shouldBe false
-    isEven(add(Two,  Two))  (true, false) shouldBe true
+
+    isEven(mul(Zero, Zero))           (true, false) shouldBe true
+    isEven(mul(Zero, One))            (true, false) shouldBe true
+    isEven(mul(Succ(One), Succ(One))) (true, false) shouldBe true
   }
 
   // Lists
