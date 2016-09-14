@@ -2,7 +2,7 @@ package org.hablapps.gist
 
 import org.scalatest._
 
-class ChurchBasics extends FlatSpec with Matchers {
+class LambdaBasics extends FlatSpec with Matchers {
 
   /*************************************************************/
   /* 1. Non-Recursive datatypes: same Church & Scott Encodings */
