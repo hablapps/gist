@@ -144,7 +144,19 @@ class LambdaBasics extends FlatSpec with Matchers {
     def foldNat[A](zero: A, succ: A => A): SNat => A =
       _(zero, n => succ(foldNat(zero, succ)(n)))
 
-    def toChurch: SNat => Nat = foldNat(Zero, Succ)
+    def xmatch[A](n: SNat)(z: A, s: SNat => A): A = n(z, s)
+
+    object Zero {
+      def unapply(n: SNat): Option[Unit] =
+        xmatch[Option[Unit]](n)(Option(()), _ => Option.empty)
+    }
+
+    object Succ {
+      def unapply(n: SNat): Option[SNat] =
+        xmatch[Option[SNat]](n)(Option.empty, Option.apply)
+    }
+
+    def toChurch: SNat => CNat = foldNat(CZero, CSucc)
   }
 
   "Scott's Nat expressions" should "work" in {
@@ -155,69 +167,118 @@ class LambdaBasics extends FlatSpec with Matchers {
 
     add(SZero, SZero)(0, _ => 1) shouldBe 0
     add(SZero, SOne)(0, _ => 1) shouldBe 1
+
+    (SZero match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 0
+
+    (SOne match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 2
+
+    (SSucc(SOne) match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 1
   }
 
   // 2.1.2. Church Encoding
 
-  trait Nat {
+  trait CNat {
     def apply[A](zero: A, succ: A => A): A
   }
 
-  object Zero extends Nat {
+  object CZero extends CNat {
     def apply[A](zero: A, succ: A => A): A = zero
   }
 
-  object One extends Nat {
-    def apply[A](zero: A, succ: A => A): A = succ(Zero[A](zero, succ))
+  object COne extends CNat {
+    def apply[A](zero: A, succ: A => A): A = succ(CZero[A](zero, succ))
   }
 
-  case class Succ(n: Nat) extends Nat {
+  case class CSucc(n: CNat) extends CNat {
     def apply[A](zero: A, succ: A => A): A = succ(n(zero, succ))
   }
 
-  object Nat {
+  object CNat {
     import Bool.negate
 
-    def add(n: Nat, m: Nat): Nat = n(m, Succ)
+    def add(n: CNat, m: CNat): CNat = n(m, CSucc)
 
-    def mul(n: Nat, m: Nat): Nat = n[Nat](Zero, add(m, _))
+    def mul(n: CNat, m: CNat): CNat = n[CNat](CZero, add(m, _))
 
-    def exp(n: Nat, m: Nat): Nat = n[Nat](One, mul(m, _))
+    def exp(n: CNat, m: CNat): CNat = n[CNat](COne, mul(m, _))
 
-    def isEven(n: Nat): Bool = n(True, negate)
+    def isEven(n: CNat): Bool = n(True, negate)
 
-    def isOdd(n: Nat): Bool = negate(isEven(n))
+    def isOdd(n: CNat): Bool = negate(isEven(n))
 
     // It takes `O(n)` to get the predecessor!
-    def pred(n: Nat): Nat =
-      n[(Nat, Nat)]((Zero, Zero), { case (_, x) => (x, Succ(x)) })._1
+    def pred(n: CNat): CNat =
+      n[(CNat, CNat)]((CZero, CZero), { case (_, x) => (x, CSucc(x)) })._1
 
-    def toScott: Nat => SNat = _[SNat](SZero, SSucc)
+    def xmatch[A](n: CNat)(z: A, s: CNat => A): A =
+      n[A](z, _ => s(pred(n)))
+
+    object Zero {
+      def unapply(n: CNat): Option[Unit] =
+        xmatch[Option[Unit]](n)(Option(()), _ => Option.empty)
+    }
+
+    object Succ {
+      def unapply(n: CNat): Option[CNat] =
+        xmatch[Option[CNat]](n)(Option.empty, Option.apply)
+    }
+
+    def toScott: CNat => SNat = _[SNat](SZero, SSucc)
   }
 
   "Church's Nat expressions" should "work" in {
-    import Nat._
+    import CNat._
 
-    isEven(Zero)      (true, false) shouldBe true
-    isEven(One)       (true, false) shouldBe false
-    isEven(Succ(One)) (true, false) shouldBe true
+    isEven(CZero)       (true, false) shouldBe true
+    isEven(COne)        (true, false) shouldBe false
+    isEven(CSucc(COne)) (true, false) shouldBe true
 
-    isOdd(Zero) (true, false) shouldBe false
-    isOdd(One)  (true, false) shouldBe true
+    isOdd(CZero) (true, false) shouldBe false
+    isOdd(COne)  (true, false) shouldBe true
 
-    isEven(add(Zero, Zero)) (true, false) shouldBe true
-    isEven(add(Zero, One))  (true, false) shouldBe false
-    isEven(add(One,  Zero)) (true, false) shouldBe false
-    isEven(add(One,  One))  (true, false) shouldBe true
+    isEven(add(CZero, CZero)) (true, false) shouldBe true
+    isEven(add(CZero, COne))  (true, false) shouldBe false
+    isEven(add(COne,  CZero)) (true, false) shouldBe false
+    isEven(add(COne,  COne))  (true, false) shouldBe true
 
-    isEven(mul(Zero, Zero))           (true, false) shouldBe true
-    isEven(mul(Zero, One))            (true, false) shouldBe true
-    isEven(mul(Succ(One), Succ(One))) (true, false) shouldBe true
+    isEven(mul(CZero, CZero))             (true, false) shouldBe true
+    isEven(mul(CZero, COne))              (true, false) shouldBe true
+    isEven(mul(CSucc(COne), CSucc(COne))) (true, false) shouldBe true
 
-    pred(Zero)[Int](0, _ + 1)            shouldBe 0 // XXX: weird behaviour!
-    pred(One)[Int](0, _ + 1)             shouldBe 0
-    pred(Succ(One))[Int](0, _ + 1)       shouldBe 1
-    pred(Succ(Succ(One)))[Int](0, _ + 1) shouldBe 2
+    pred(CZero)[Int](0, _ + 1)              shouldBe 0 // XXX: weird behaviour!
+    pred(COne)[Int](0, _ + 1)               shouldBe 0
+    pred(CSucc(COne))[Int](0, _ + 1)        shouldBe 1
+    pred(CSucc(CSucc(COne)))[Int](0, _ + 1) shouldBe 2
+
+    (CZero match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 0
+
+    (COne match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 2
+
+    (CSucc(COne) match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 1
   }
 
   // 2.1.3. Parigot Encoding
@@ -243,6 +304,18 @@ class LambdaBasics extends FlatSpec with Matchers {
     def add(n: PNat, m: PNat): PNat = n[PNat](m, (p, a) => PSucc(a))
 
     def pred(n: PNat): PNat = n[PNat](PZero, (p, _) => p)
+
+    def xmatch[A](n: PNat)(z: A, s: PNat => A): A = n[A](z, (p, _) => s(p))
+
+    object Zero {
+      def unapply(n: PNat): Option[Unit] =
+        xmatch[Option[Unit]](n)(Option(()), _ => Option.empty)
+    }
+
+    object Succ {
+      def unapply(n: PNat): Option[PNat] =
+        xmatch[Option[PNat]](n)(Option.empty, Option.apply)
+    }
   }
 
   "Parigot's Nat expressions" should "work" in {
@@ -254,6 +327,24 @@ class LambdaBasics extends FlatSpec with Matchers {
     add(PZero, PZero)[Int](0, (_, i) => i) shouldBe 0
     add(PZero, POne)[Int](0, (_, i) => i + 1) shouldBe 1
     add(POne, POne)[Int](0, (_, i) => i + 1) shouldBe 2
+
+    (PZero match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 0
+
+    (POne match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 2
+
+    (PSucc(POne) match {
+      case Zero(_)       => 0
+      case Succ(Succ(_)) => 1
+      case Succ(_)       => 2
+    }) shouldBe 1
   }
 
   // 2.2. Lists
