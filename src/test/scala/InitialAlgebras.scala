@@ -31,9 +31,6 @@ class InitialAlgebras extends FlatSpec with Matchers{
   objects according to certain rules. In our case, we want to create arithmetic
   expressions.
 
-  @jeslg: here, algebraic theory is synonim for typeclass or object algebra
-  interface.
-
   The following trait tells us that we can create arithmetic expressions using the
   operations, or constructors, `lit`, `neg` and `add`. Any type `E` for which
   we can implement the following trait qualifies as an arithmetic expression.
@@ -247,10 +244,6 @@ class InitialAlgebras extends FlatSpec with Matchers{
     Using the Church algebra we can write the expressions `e0` and `e1` step-by-step,
     instead of performing a single instantiation (not saying that this is good, simply
     that you can).
-
-    @jeslg: step-by-step means that `add`, `lit` and `neg` are creating
-    intermediate expressions (reified by `Expr`)
-
     */
 
     import initial._, algebra._
