@@ -312,11 +312,47 @@ class ChurchBasics extends FlatSpec with Matchers {
     def concat(l1: IntList, l2: IntList): IntList = l1(l2, Cons)
   }
 
-  "Lists expressions" should "work" in {
+  "Church's Lists expressions" should "work" in {
     import IntList._
 
     concat(Nil, Nil).apply[Int](0, _ + _) shouldBe 0
     concat(Cons(1, Nil), Nil).apply[Int](0, _ + _) shouldBe 1
     concat(Cons(1, Nil), Cons(2, Nil)).apply[Int](0, _ + _) shouldBe 3
+  }
+
+  // 2.2.3. Parigot Encoding
+
+  trait PIntList {
+    def apply[A](nil: => A, cons: (Int, PIntList, => A) => A): A
+  }
+
+  case object PNil extends PIntList {
+    def apply[A](nil: => A, cons: (Int, PIntList, => A) => A): A = nil
+  }
+
+  case class PCons(x: Int, xs: PIntList) extends PIntList {
+    def apply[A](nil: => A, cons: (Int, PIntList, => A) => A): A =
+      cons(x, xs, xs(nil, cons))
+  }
+
+  object PIntList {
+
+    def head(l: PIntList): Int =
+      l[Int](throw new Error("Nil.head"), (i, _, _) => i)
+
+    def tail(l: PIntList): PIntList =
+      l[PIntList](throw new Error("Nil.tail"), (_, p, _) => p)
+
+    def foldIntList[A](nil: A, cons: (Int, A) => A): PIntList => A =
+      _[A](nil, (i, _, a) => cons(i, a))
+  }
+
+  "Parigot's Lists expressions" should "work" in {
+    import PIntList._
+
+    head(PCons(1, PNil)) shouldBe 1
+    head(PCons(2, PCons(1, PNil))) shouldBe 2
+    head(tail(PCons(2, PCons(1, PNil)))) shouldBe 1
+    foldIntList[Int](0, (i, a) => i + a)(PCons(1, PCons(2, PNil))) shouldBe 3
   }
 }
