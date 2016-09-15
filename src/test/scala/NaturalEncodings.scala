@@ -4,31 +4,30 @@ import org.scalatest._
 
 class NaturalEncodings extends FlatSpec with Matchers {
 
-  // Quasi Algebra for Naturals
-  trait NatQAlg[S, E] {
+  trait NatCases[S, E] {
     def zero: E
     def succ(s: S): E
   }
 
-  object NatQAlg {
+  object NatCases {
 
-    def apply[S, E](z: E, f: S => E): NatQAlg[S, E] = new NatQAlg[S, E] {
+    def apply[S, E](z: E, f: S => E): NatCases[S, E] = new NatCases[S, E] {
       def zero: E = z
       def succ(s: S): E = f(s)
     }
 
     trait Syntax {
-      def zero[S, E](implicit ev: NatQAlg[S, E]): E = ev.zero
-      def succ[S, E](s: S)(implicit ev: NatQAlg[S, E]): E = ev.succ(s)
+      def zero[S, E](implicit ev: NatCases[S, E]): E = ev.zero
+      def succ[S, E](s: S)(implicit ev: NatCases[S, E]): E = ev.succ(s)
     }
 
     object syntax extends Syntax
   }
 
-  type NatAlg[E] = NatQAlg[E, E]
+  type NatAlg[E] = NatCases[E, E]
 
   object NatAlg {
-    def apply[E](z: E, f: E => E): NatAlg[E] = NatQAlg[E, E](z, f)
+    def apply[E](z: E, f: E => E): NatAlg[E] = NatCases[E, E](z, f)
   }
 
   trait CNat {
@@ -37,6 +36,7 @@ class NaturalEncodings extends FlatSpec with Matchers {
 
   object CNat {
 
+    // TODO: add fold evidences
     val initial: NatAlg[CNat] = NatAlg(
       new CNat {
         def apply[A](alg: NatAlg[A]): A = alg.zero
@@ -61,32 +61,29 @@ class NaturalEncodings extends FlatSpec with Matchers {
   }
 
   trait SNat {
-    def apply[A](alg: NatQAlg[SNat, A]): A
+    def apply[A](alg: NatCases[SNat, A]): A
   }
 
   object SNat {
 
-    val qinitial: NatQAlg[SNat, SNat] = new NatQAlg[SNat, SNat] {
+    val initial: NatAlg[SNat] = NatAlg(
+      new SNat {
+        def apply[A](alg: NatCases[SNat, A]): A = alg.zero
+      },
+      s => new SNat {
+        def apply[A](alg: NatCases[SNat, A]): A = alg.succ(s)
+      })
 
-      def zero: SNat = new SNat {
-        def apply[A](alg: NatQAlg[SNat, A]): A = alg.zero
-      }
-
-      def succ(s: SNat): SNat = new SNat {
-        def apply[A](alg: NatQAlg[SNat, A]): A = alg.succ(s)
-      }
-    }
-
-    val eval: NatQAlg[SNat, Int] = NatQAlg[SNat, Int](0, s => s(eval) + 1)
+    val eval: NatCases[SNat, Int] = NatCases[SNat, Int](0, s => s(eval) + 1)
 
     object operator {
       def add(n: SNat, m: SNat): SNat =
-        n(NatQAlg(m, p => qinitial.succ(add(p, m))))
+        n(NatCases(m, p => initial.succ(add(p, m))))
     }
   }
 
   "Scott's Nat algebra" should "work" in {
-    import SNat._, qinitial._, operator._
+    import SNat._, initial._, operator._
 
     add(zero, zero)(eval) shouldBe 0
     add(zero, succ(zero))(eval) shouldBe 1
@@ -95,30 +92,41 @@ class NaturalEncodings extends FlatSpec with Matchers {
   }
 
   trait PNat {
-    def apply[A](alg: NatQAlg[(PNat, A), A]): A
+    def apply[A](alg: NatCases[(PNat, A), A]): A
   }
 
   object PNat {
 
-    val qinitial = new NatQAlg[(PNat, PNat), PNat] {
+    val initial: NatAlg[PNat] = NatAlg(
+      new PNat {
+        def apply[A](alg: NatCases[(PNat, A), A]): A = alg.zero
+      },
+      s => new PNat {
+        def apply[A](alg: NatCases[(PNat, A), A]): A =
+          // XXX: `(x, y).map(f)` with cats, where are you?
+          alg.succ(s match { case (x, y) => (x, y(alg)) })
+      })
+
+    // TODO: initial with NatAlg
+    val qinitial = new NatCases[(PNat, PNat), PNat] {
 
       def zero: PNat = new PNat {
-        def apply[A](alg: NatQAlg[(PNat, A), A]): A = alg.zero
+        def apply[A](alg: NatCases[(PNat, A), A]): A = alg.zero
       }
 
       def succ(s: (PNat, PNat)): PNat = new PNat {
-        def apply[A](alg: NatQAlg[(PNat, A), A]): A =
+        def apply[A](alg: NatCases[(PNat, A), A]): A =
           // XXX: `(x, y).map(f)` with cats, where are you?
           alg.succ(s match { case (x, y) => (x, y(alg)) })
       }
     }
 
-    val eval: NatQAlg[(PNat, Int), Int] =
-      NatQAlg[(PNat, Int), Int](0, { case (_, i) => i + 1 })
+    val eval: NatCases[(PNat, Int), Int] =
+      NatCases[(PNat, Int), Int](0, { case (_, i) => i + 1 })
 
     object operator {
       def add(n: PNat, m: PNat): PNat =
-        n(NatQAlg[(PNat, PNat), PNat](m, {
+        n(NatCases[(PNat, PNat), PNat](m, {
           case (p, a) => qinitial.succ(p, a)
         }))
     }
@@ -127,38 +135,9 @@ class NaturalEncodings extends FlatSpec with Matchers {
   "Parigot's Nat algebra" should "work" in {
     import PNat._, qinitial._, operator._
 
-    // These expressions make no sense, since `succ` requires a tuple as input
-    // `(PNat, PNat)`
-
     // add(zero, zero)(eval) shouldBe 0
     // add(zero, succ(zero))(eval) shouldBe 1
     // add(succ(zero), zero)(eval) shouldBe 1
     // add(succ(zero), succ(zero))(eval) shouldBe 2
-
-    // We "solve" this limitation replacing `succ` with the following method.
-    def succ2(prev: PNat): PNat = succ((prev, prev))
-
-    add(zero, zero)(eval) shouldBe 0
-    add(zero, succ2(zero))(eval) shouldBe 1
-    add(succ2(zero), zero)(eval) shouldBe 1
-    add(succ2(zero), succ2(zero))(eval) shouldBe 2
-    add(succ2(succ2(zero)), succ2(zero))(eval) shouldBe 3
   }
-
-  // What about generic expressions?
-
-  import NatQAlg.syntax._
-
-  def zeroE[S, E](implicit ev: NatQAlg[S, E]): E = zero
-
-  // XXX: Ops! zero's type is E, but `succ` is requiring S! In fact, what I was
-  // trying to do was to force a Scott representation into a typeclass
-  // expression (which we know it's almost Church encoding) That's why the ideal
-  // of a generic expression is utopic.
-
-  // def oneE[S, E](implicit ev: NatQAlg[S, E]): E = succ(zero)
-
-  // => Well, it seems to be ¿impossible? to have a unique expression to be
-  // shared by the different encodings. So what's the point of keeping `NatQAlg`
-  // (disregarding the didactic comparision)?
 }
