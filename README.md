@@ -11,6 +11,7 @@ some explanations throughout the code, although, surely, not enough to make them
 do we implement both compositional and non-compositional interpreters. 
 * [Church encodings](src/test/scala/ChurchEncodings.scala). What are Church encodings and how can we pattern match against
 them.
+* [Natural Numbers](src/test/scala/NaturalEncodings.scala). Shows how we can represent Natural Numbers with different encodings: Church, Scott and Parigot.
 * [Church vs. ADTs](src/test/scala/InitialAlgebras.scala). What is the relationship between these encodings? Algebras to the
 rescue!
 * [GADTs](src/test/scala/GADTs.scala). How do we represent embedded DSLs using generalized algebraic data types, and how
