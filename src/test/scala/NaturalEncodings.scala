@@ -27,6 +27,7 @@ class NaturalEncodings extends FlatSpec with Matchers {
     def apply[E](z: E, f: E => E): NatAlg[E] = NatCases[E, E](z, f)
   }
 
+  // Church Encoding
   trait CNat {
     def apply[A](alg: NatAlg[A]): A
   }
@@ -64,6 +65,7 @@ class NaturalEncodings extends FlatSpec with Matchers {
     fold(eval)(add(succ(zero), succ(zero))) shouldBe 2
   }
 
+  // Scott Encoding
   trait SNat {
     def apply[A](alg: NatCases[SNat, A]): A
   }
@@ -102,6 +104,7 @@ class NaturalEncodings extends FlatSpec with Matchers {
     fold(eval)(add(succ(zero), succ(zero))) shouldBe 2
   }
 
+  // Parigot Encoding
   trait PNat {
     def apply[A](alg: NatCases[(PNat, A), A]): A
   }
