@@ -15,6 +15,7 @@ them.
 rescue!
 * [GADTs](src/test/scala/GADTs.scala). How do we represent embedded DSLs using generalized algebraic data types, and how
 do we implement both compositional and non-compositional interpreters.
+* [Bypassing Free](src/test/scala/objectalgebras-vs-free). Check out how we can exploit object algebras to obtain the very same benefits of free monads, in many circumstances. 
 
 Executing gists
 ===============
