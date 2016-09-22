@@ -11,3 +11,9 @@ These two approaches are actually very related to each other:
 ## Conclusion
 
 In both cases we are working with initial algebras, and therefore we can achieve the very same functionality: namely, programming at the most abstract level, without committing to particular interpretations. That said, the use of object algebras is much more recommendable when we are dealing with compositional interpreters. In those cases, they have two major advantages over *Free*: there is no need to create instances of temporal classes (the Free ADT), and it's trivial to combine algebras and use the exact level of generality (e.g. to use Apply or Functor, instead of Monad). On the other hand, the use of *Free* is more recomendable when we need more control over the execution of our programs, since we have at our disposal the reification of our program.
+
+### Related Gists
+
+[Church vs. ADTs](https://github.com/hablapps/gist/blob/master/src/test/scala/InitialAlgebras.scala) What is the relationship between these encodings? Algebras to the rescue!
+
+[ChurchEncodingsHK](https://github.com/hablapps/gist/blob/hablacats/src/test/scala/ChurchEncodingsHK.scala): We can also create non-compositional interpreters for object algebras, not easy though.
