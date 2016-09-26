@@ -29,7 +29,7 @@ class FreeMonad extends FlatSpec with Matchers {
     type IO[A] = Free[IOF, A]
 
     // We add some syntax to ease the proccess of writing programs with this
-    // algebra. This are usually called "smart constructors".
+    // algebra. These are usually called "smart constructors".
     object IO {
       object Syntax {
         def read: IO[String] =
@@ -126,9 +126,9 @@ class FreeMonad extends FlatSpec with Matchers {
       def apply[A](fa: IOF[A]): IOAction[A] = fa match {
         case Read =>
           for {
-            s <- get
-            _ <- set(s.read)
-          } yield s.readList.head
+            h <- inspect(_.readList.head)
+            _ <- modify(_.read)
+          } yield h
         case Write(msg) =>
           modify(_.write(msg))
       }
