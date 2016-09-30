@@ -12,7 +12,11 @@ addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
 
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats" % "0.7.0",
-  "org.scalatest" %% "scalatest" % "2.2.6"
+  "org.scalaz" %% "scalaz-core" % "7.3.0-M4-HABLAPPS",
+  "org.scalatest" %% "scalatest" % "2.2.6",
+  "com.typesafe.akka" %% "akka-http-experimental" % "2.4.10",
+  "com.typesafe.akka" %% "akka-http-spray-json-experimental" % "2.4.10",
+  "com.lihaoyi" %% "sourcecode" % "0.1.2"
 )
 
 scalacOptions ++= Seq(
