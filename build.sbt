@@ -10,6 +10,9 @@ organization := "org.hablapps"
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
 
+resolvers ++= Seq(
+  "Speech repo - releases" at "http://repo.hablapps.com/releases")
+
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats" % "0.7.0",
   "org.scalaz" %% "scalaz-core" % "7.3.0-M4-HABLAPPS",
