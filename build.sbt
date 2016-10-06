@@ -8,17 +8,17 @@ scalaBinaryVersion := "2.11"
 
 organization := "org.hablapps"
 
-addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.7.1")
+addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.0")
 
 resolvers ++= Seq(
   "Speech repo - releases" at "http://repo.hablapps.com/releases")
 
 libraryDependencies ++= Seq(
-  "org.typelevel" %% "cats" % "0.7.0",
+  "org.typelevel" %% "cats" % "0.7.2",
   "org.scalaz" %% "scalaz-core" % "7.3.0-M4-HABLAPPS",
-  "org.scalatest" %% "scalatest" % "2.2.6",
-  "com.typesafe.akka" %% "akka-http-experimental" % "2.4.10",
-  "com.typesafe.akka" %% "akka-http-spray-json-experimental" % "2.4.10",
+  "org.scalatest" %% "scalatest" % "3.0.0",
+  "com.typesafe.akka" %% "akka-http-experimental" % "2.4.11",
+  "com.typesafe.akka" %% "akka-http-spray-json-experimental" % "2.4.11",
   "com.lihaoyi" %% "sourcecode" % "0.1.2"
 )
 
