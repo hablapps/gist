@@ -1,4 +1,7 @@
 *~
-target/*
-project/target/*
-project/project/target/*
+*.iml
+.idea/
+build/
+project/
+target/
+
