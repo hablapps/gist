@@ -1,4 +1,4 @@
-package org.hablapps.gist
+package org.hablapps.gist.optics
 
 import org.scalatest._
 
@@ -8,7 +8,7 @@ object IOCoalgebra extends FlatSpec with Matchers {
 
   type IOCoalgebra[IOAlg[_[_]], Step[_, _], S] = IOAlg[Step[S, ?]]
 
-  // Cool as a Pope name
+  // Could be used to name a 'Pope'
   type PIOCoalgebra[IOAlg[_[_]], Step[_, _, _], S, T] = IOAlg[Step[S, T, ?]]
 
   // Iso
@@ -22,6 +22,11 @@ object IOCoalgebra extends FlatSpec with Matchers {
     def get: P[A]
 
     def set(a: A): P[Unit]
+
+    val M: Monad[P]
+
+    def modify(f: A => A): P[Unit] =
+      M.bind(get)(f andThen set)
   }
 
   type Lens[S, A] = IOCoalgebra[LensAlg[A, ?[_]], State, S]
@@ -42,6 +47,12 @@ object IOCoalgebra extends FlatSpec with Matchers {
   }
 
   type PLens[S, T, A, B] = PIOCoalgebra[PLensAlg[A, B, ?[_]], IndexedState, S, T]
+
+  // [F[_]: Functor] (A => F[B]) => S => F[T]
+
+  // (1 => S => T * A) * (B => S => T * Unit)
+  // (S => T * A) * (B => S => T)
+  // (S => T * A) * (S => B => T)
 
   object PLens {
 

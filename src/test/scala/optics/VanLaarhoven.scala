@@ -27,7 +27,7 @@ object VanLaarhoven extends FlatSpec with Matchers {
   }
 
   // State is not a profunctor, since we require an additional `A => B` to
-  // restore the state.
+  // restore the state. So it's invariant in that position.
   //
   // object StateProfunctor extends Profunctor[State] {
   //   def dimap[A, B, C, D](f: B => A)(g: C => D): State[A, C] => State[B, D] =
@@ -51,6 +51,7 @@ object VanLaarhoven extends FlatSpec with Matchers {
       _.fold(_.left, f(_).right)
   }
 
+  // What is this: Van Laarhoven, Pure Profunctor?
   trait Prism[S, A] {
     def apply[P[_, _]: Choice, F[_]: Applicative](p: P[A, F[A]]): P[S, F[S]]
   }
