@@ -75,8 +75,11 @@ object PureOptics {
       _ <- modify(_memberGroup(gid, mid).set(Option(member)))
     } yield (gid, mid)
 
+  import monocle.state.all._
+
   def removeGroup(gid: Int): State[Meetapp, Unit] =
-    modify(_group(gid).set(Option.empty))
+    // modify(_group(gid).set(Option.empty))
+    (_group(gid) assign Option.empty) >> (().point[State[Meetapp, ?]])
 
   /* Run it! */
 
