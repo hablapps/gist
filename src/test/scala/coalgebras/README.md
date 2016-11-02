@@ -4,12 +4,12 @@ The `coalgebras` object package contains common definitions used in the differen
 
 ### Machines
 
-* `automata.scala` ([scalaz](scalaz/automata.scala),cats), sample definition of a moore automata as an IO-coalgebra, i.e. as an interpretation of an input algebra over a state-based language; it's used throughout the other gists.
-* `automatasample.scala` ([scalaz](scalaz/automatasample.scala),cats), sample instantiation of the moore automata.
+* `automata.scala` ([scalaz](scalaz/automata.scala),cats), sample definition of a Moore automaton as an IO-coalgebra, i.e. as an interpretation of an input algebra over a state-based language; it's used throughout the other gists.
+* `automatasample.scala` ([scalaz](scalaz/automatasample.scala),cats), sample instantiation of the Moore automaton.
 
 ### Programming machines
 
-Given the IO language of the automata, we can implement different kinds of programs over the automata. The IO language just provides the "instructions" or buttons of the machine, which can be combined as we wish: monadically, applicatively, etc.
+Given the IO language of the automaton, we can implement different kinds of programs over it. The IO language just provides the "instructions" or buttons of the machine, which can be combined as we wish: monadically, applicatively, etc.
 
 * `programmingimperatively.scala` ([scalaz](scalaz/programmingimperatively.scala),cats). Example of imperative programming over Moore automata.
 * `programmingapplicatively.scala` ([scalaz](scalaz/programmingapplicatively.scala),cats). Sometimes, monadic combinators are not really needed. In that case, we can simply use applicative ones.
