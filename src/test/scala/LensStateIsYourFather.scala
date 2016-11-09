@@ -1,11 +1,13 @@
 package org.hablapps.blog
 
+import org.scalatest._
+
 import scalaz.{ Reader, State }
 import scalaz.Isomorphism.<=>
 
 import monocle.{ Getter, Lens, Optional, Setter, Fold }
 
-object LensStateIsYourFather {
+class LensStateIsYourFather extends FlatSpec with Matchers {
 
   type IOCoalgebra[IOAlg[_[_]], Step[_, _], S] = IOAlg[Step[S, ?]]
 
@@ -116,39 +118,6 @@ object LensStateIsYourFather {
         }
       }
     }
-
-    /* IOFold */
-
-    import scalaz.Monoid
-    import scalaz.std.list._
-
-    trait IOFoldAlg[A, P[_]] {
-
-      def foldMap[M: Monoid](f: A => M): P[M]
-
-      def getAll: P[List[A]] =
-        foldMap(List(_))
-
-      // TODO: What else? (Foldable, monocle.Fold...)
-    }
-
-    type IOFold[S, A] = IOCoalgebra[IOFoldAlg[A, ?[_]], Reader, S]
-
-    object IOFold {
-
-      def foldIso[S, A] = new (Fold[S, A] <=> IOFold[S, A]) {
-
-        def from: IOFold[S, A] => Fold[S, A] = iofld => new Fold[S, A] {
-          def foldMap[M: Monoid](f: A => M)(s: S): M =
-            iofld.foldMap(f).run(s)
-        }
-
-        def to: Fold[S, A] => IOFold[S, A] = fld => new IOFold[S, A] {
-          def foldMap[M: Monoid](f: A => M): Reader[S, M] =
-            Reader(fld.foldMap(f))
-        }
-      }
-    }
   }
 
   object OpticsAndStateConnections {
@@ -178,6 +147,8 @@ object LensStateIsYourFather {
   }
 
   object MonocleAndState {
+    import Function.const
+    import scalaz.syntax.monad._
     import monocle.macros.GenLens
     import monocle.state.all._
     import OpticsAsCoalgebras.IOLens
@@ -189,15 +160,18 @@ object LensStateIsYourFather {
 
     val _age: Lens[Person, Int] = GenLens[Person](_.age)
     val increment: State[Person, Int] = _age mod (_ + 1)
-    assert(increment.run(p) == (Person("John", 31), 31))
+    increment.run(p) shouldEqual (Person("John", 31), 31)
 
     /* Example using IOLens (returns Unit instead) */
 
     val _ioage: IOLens[Person, Int] =
       IOLens[Person, Int](_.age)(age => _.copy(age = age))
-    val ioincrement: State[Person, Unit] = _ioage modify (_ + 1)
-    assert(ioincrement.run(p) == (Person("John", 31), ()))
+    val ioincrement: State[Person, Int] =
+      (_ioage modify (_ + 1)) >> (_ioage.get)
+    ioincrement.run(p) shouldEqual (Person("John", 31), 31)
   }
+
+  "IOLens" should "work" in MonocleAndState
 
   object DiscussionAndOngoingWork {
     import scalaz.IndexedState
