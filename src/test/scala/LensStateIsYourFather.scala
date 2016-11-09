@@ -7,6 +7,12 @@ import scalaz.Isomorphism.<=>
 
 import monocle.{ Getter, Lens, Optional, Setter, Fold }
 
+/* IMPORTANT: this gist belongs to the blog post "Lens, State Is Your Father".
+ * Please, visit the following link to get a complete description of the
+ * contents:
+ *
+ * http://blog.hablapps.com/2016/11/09/lens-state-is-your-father/
+ */
 class LensStateIsYourFather extends FlatSpec with Matchers {
 
   type IOCoalgebra[IOAlg[_[_]], Step[_, _], S] = IOAlg[Step[S, ?]]
