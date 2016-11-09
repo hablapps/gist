@@ -9,6 +9,7 @@ scalaBinaryVersion := "2.11"
 organization := "org.hablapps"
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.0")
+addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
 
 resolvers ++= Seq(
   "Speech repo - releases" at "http://repo.hablapps.com/releases")
@@ -19,7 +20,14 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.0",
   "com.typesafe.akka" %% "akka-http-experimental" % "2.4.11",
   "com.typesafe.akka" %% "akka-http-spray-json-experimental" % "2.4.11",
-  "com.lihaoyi" %% "sourcecode" % "0.1.2"
+  "com.lihaoyi" %% "sourcecode" % "0.1.2",
+  "com.github.julien-truffaut"  %%  "monocle-core"    % "1.3.2",
+  "com.github.julien-truffaut"  %%  "monocle-generic" % "1.3.2",
+  "com.github.julien-truffaut"  %%  "monocle-macro"   % "1.3.2",
+  "com.github.julien-truffaut"  %%  "monocle-state"   % "1.3.2",
+  "com.github.julien-truffaut"  %%  "monocle-refined" % "1.3.2",
+  "com.github.julien-truffaut"  %%  "monocle-unsafe"  % "1.3.2",
+  "com.github.julien-truffaut"  %%  "monocle-law"     % "1.3.2" % "test"
 )
 
 scalacOptions ++= Seq(
