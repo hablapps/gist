@@ -193,8 +193,21 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
       def set(b: B): Q[Unit]
     }
 
-    trait PBind[F[_], G[_]] {
-      def pbind[A, B](fa: F[A])(f: A => G[B]): G[B]
+    trait PBind[F[_], G[_], H[_]] {
+      def pbind[A, B](fa: F[A])(f: A => G[B]): H[B]
+    }
+
+    object PBind {
+
+      private type IS[S, T, A] = IndexedState[S, T, A]
+
+      implicit def IndexedStateInstance[S1, S2, S3] =
+        new PBind[IS[S1, S2, ?], IS[S2, S3, ?], IS[S1, S3, ?]] {
+          def pbind[A, B](
+              fa: IS[S1, S2, A])(
+              f:  A => IS[S2, S3, B]): IS[S1, S3, B] =
+            fa flatMap f
+        }
     }
 
     object PLensAlg {
@@ -208,10 +221,10 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
           F: Functor[P]): P[C] =
         PQ.get map f
 
-      def modify[A, B, P[_], Q[_]](
+      def modify[A, B, P[_], Q[_], H[_]](
           f: A => B)(implicit
           PQ: PLensAlg[A, B, P, Q],
-          PB: PBind[P, Q]): Q[Unit] =
+          PB: PBind[P, Q, H]): H[Unit] =
         PB.pbind(PQ.get)(f andThen PQ.set)
     }
 
