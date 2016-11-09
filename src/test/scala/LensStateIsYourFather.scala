@@ -17,7 +17,7 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
 
     /* IOLens */
 
-    trait IOLensAlg[A, P[_]] {
+    trait LensAlg[A, P[_]] {
       def get: P[A]
       def set(a: A): P[Unit]
 
@@ -32,12 +32,12 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
         get >>= (f andThen set)
     }
 
-    type IOLens[S, A] = IOCoalgebra[IOLensAlg[A, ?[_]], State, S]
+    type IOLens[S, A] = IOCoalgebra[LensAlg[A, ?[_]], State, S]
 
     object IOLens {
 
       def apply[S, A](_get: S => A)(_set: A => S => S): IOLens[S, A] =
-        new IOLensAlg[A, State[S, ?]] {
+        new LensAlg[A, State[S, ?]] {
           def get: State[S, A] = State.gets(_get)
           def set(a: A): State[S, Unit] = State.modify(_set(a))
         }
@@ -56,12 +56,12 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
 
     /* IOOptional */
 
-    trait IOOptionalAlg[A, P[_]] {
+    trait OptionalAlg[A, P[_]] {
       def getOption: P[Option[A]]
       def set(a: A): P[Unit]
     }
 
-    type IOOptional[S, A] = IOCoalgebra[IOOptionalAlg[A, ?[_]], State, S]
+    type IOOptional[S, A] = IOCoalgebra[OptionalAlg[A, ?[_]], State, S]
 
     object IOOptional {
 
@@ -79,11 +79,11 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
 
     /* IOSetter */
 
-    trait IOSetterAlg[A, P[_]] {
+    trait SetterAlg[A, P[_]] {
       def modify(f: A => A): P[Unit]
     }
 
-    type IOSetter[S, A] = IOCoalgebra[IOSetterAlg[A, ?[_]], State, S]
+    type IOSetter[S, A] = IOCoalgebra[SetterAlg[A, ?[_]], State, S]
 
     object IOSetter {
 
@@ -100,11 +100,11 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
 
     /* IOGetter */
 
-    trait IOGetterAlg[A, P[_]] {
+    trait GetterAlg[A, P[_]] {
       def get: P[A]
     }
 
-    type IOGetter[S, A] = IOCoalgebra[IOGetterAlg[A, ?[_]], Reader, S]
+    type IOGetter[S, A] = IOCoalgebra[GetterAlg[A, ?[_]], Reader, S]
 
     object IOGetter {
 
@@ -160,6 +160,7 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
 
     val _age: Lens[Person, Int] = GenLens[Person](_.age)
     val increment: State[Person, Int] = _age mod (_ + 1)
+
     increment.run(p) shouldEqual (Person("John", 31), 31)
 
     /* Example using IOLens (returns Unit instead) */
@@ -168,6 +169,7 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
       IOLens[Person, Int](_.age)(age => _.copy(age = age))
     val ioincrement: State[Person, Int] =
       (_ioage modify (_ + 1)) >> (_ioage.get)
+
     ioincrement.run(p) shouldEqual (Person("John", 31), 31)
   }
 
@@ -177,12 +179,10 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
     import scalaz.IndexedState
     import monocle.PLens
 
-    /* First approach: different P[_] and Q[_] */
-
     type IOCoalgebra[IOAlg[_[_], _[_]], Step[_, _, _], S, T] =
       IOAlg[Step[S, S, ?], Step[S, T, ?]]
 
-    trait IOPLensAlg[A, B, P[_], Q[_]] {
+    trait PLensAlg[A, B, P[_], Q[_]] {
       def get: P[A]
       def set(b: B): Q[Unit]
     }
@@ -191,26 +191,26 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
       def pbind[A, B](fa: F[A])(f: A => G[B]): G[B]
     }
 
-    object IOPLensAlg {
+    object PLensAlg {
       import scalaz.{ Functor, Monad }
       import scalaz.Isomorphism.<=>
       import scalaz.syntax.monad._
 
       def gets[A, B, C, P[_], Q[_]](
           f: A => C)(implicit
-          PQ: IOPLensAlg[A, B, P, Q],
+          PQ: PLensAlg[A, B, P, Q],
           F: Functor[P]): P[C] =
         PQ.get map f
 
       def modify[A, B, P[_], Q[_]](
           f: A => B)(implicit
-          PQ: IOPLensAlg[A, B, P, Q],
+          PQ: PLensAlg[A, B, P, Q],
           PB: PBind[P, Q]): Q[Unit] =
         PB.pbind(PQ.get)(f andThen PQ.set)
     }
 
     type IOPLens[S, T, A, B] =
-      IOCoalgebra[IOPLensAlg[A, B, ?[_], ?[_]], IndexedState, S, T]
+      IOCoalgebra[PLensAlg[A, B, ?[_], ?[_]], IndexedState, S, T]
 
     object IOPLens {
 
