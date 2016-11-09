@@ -1,4 +1,4 @@
-package org.hablapps.blog
+package org.hablapps.gist
 
 import org.scalatest._
 
