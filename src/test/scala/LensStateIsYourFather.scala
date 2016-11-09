@@ -11,7 +11,7 @@ import monocle.{ Getter, Lens, Optional, Setter, Fold }
  * Please, visit the following link to get a complete description of the
  * contents:
  *
- * http://blog.hablapps.com/2016/11/09/lens-state-is-your-father/
+ * http://blog.hablapps.com/2016/11/11/lens-state-is-your-father/
  */
 class LensStateIsYourFather extends FlatSpec with Matchers {
 
