@@ -260,7 +260,7 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
 
     _second[Int, String, Nothing].get.eval(tp) shouldEqual "hi"
     _second[Int, String, Nothing].gets(_.length).eval(tp) shouldEqual 2
-    _second[Int, String, String].modify(_.toUpperCase).exec(tp) shouldEqual ((1, "HI"))
+    _second[Int, String, Int].modify(_.length).exec(tp) shouldEqual ((1, 2))
     _second[Int, String, Char].set('a').exec(tp) shouldEqual ((1, 'a'))
   }
 
