@@ -188,11 +188,6 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
     type IOCoalgebra[IOAlg[_[_], _[_]], Step[_, _, _], S, T] =
       IOAlg[Step[S, S, ?], Step[S, T, ?]]
 
-    trait PLensAlg[A, B, P[_], Q[_]] {
-      def get: P[A]
-      def set(b: B): Q[Unit]
-    }
-
     trait PBind[F[_], G[_], H[_]] {
       def pbind[A, B](fa: F[A])(f: A => G[B]): H[B]
     }
@@ -210,28 +205,38 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
         }
     }
 
-    object PLensAlg {
+    trait PLensAlg[A, B, P[_], Q[_]] {
+      def get: P[A]
+      def set(b: B): Q[Unit]
+
       import scalaz.{ Functor, Monad }
       import scalaz.Isomorphism.<=>
       import scalaz.syntax.monad._
 
-      def gets[A, B, C, P[_], Q[_]](
+      def gets[C](
           f: A => C)(implicit
-          PQ: PLensAlg[A, B, P, Q],
           F: Functor[P]): P[C] =
-        PQ.get map f
+        get map f
 
-      def modify[A, B, P[_], Q[_], H[_]](
+      def modify[H[_]](
           f: A => B)(implicit
-          PQ: PLensAlg[A, B, P, Q],
           PB: PBind[P, Q, H]): H[Unit] =
-        PB.pbind(PQ.get)(f andThen PQ.set)
+        PB.pbind(get)(f andThen set)
     }
 
     type IOPLens[S, T, A, B] =
       IOCoalgebra[PLensAlg[A, B, ?[_], ?[_]], IndexedState, S, T]
 
     object IOPLens {
+
+      def apply[S, T, A, B](
+          _get: S => A)(
+          _set: B => S => T): IOPLens[S, T, A, B] = new IOPLens[S, T, A, B] {
+        def get: IndexedState[S, S, A] =
+          IndexedState(s => (s, _get(s)))
+        def set(b: B): IndexedState[S, T, Unit] =
+          IndexedState(s => (_set(b)(s), ()))
+      }
 
       def plensIso[S, T, A, B] = new (PLens[S, T, A, B] <=> IOPLens[S, T, A, B]) {
 
@@ -247,5 +252,17 @@ class LensStateIsYourFather extends FlatSpec with Matchers {
           }
       }
     }
+
+    def _second[A, B, C]: IOPLens[(A, B), (A, C), B, C] =
+      IOPLens[(A, B), (A, C), B, C](_._2)(b => s => (s._1, b))
+
+    val tp: (Int, String) = (1, "hi")
+
+    _second[Int, String, Nothing].get.eval(tp) shouldEqual "hi"
+    _second[Int, String, Nothing].gets(_.length).eval(tp) shouldEqual 2
+    _second[Int, String, String].modify(_.toUpperCase).exec(tp) shouldEqual ((1, "HI"))
+    _second[Int, String, Char].set('a').exec(tp) shouldEqual ((1, 'a'))
   }
+
+  "IOPLens" should "work" in DiscussionAndOngoingWork
 }
