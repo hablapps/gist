@@ -17,7 +17,7 @@ do we implement both compositional and non-compositional interpreters.
 * [Natural Numbers](https://github.com/hablapps/gist/blob/hablacats/src/test/scala/NaturalEncodings.scala). Shows how we can represent Natural Numbers with different encodings: Church, Scott and Parigot.
 * [Bypassing Free](src/test/scala/objectalgebras-vs-free). Check out how we can exploit object algebras to obtain the very same benefits of free monads, in many circumstances.
 * [Coalgebras](src/test/scala/coalgebras). What are coalgebras? How are they related to monads and algebras in general? These gists attempt to shed some light to these questions.
-* [Lens, State Is Your Father](src/test/scala/LensStateIsYourFather.scala). Encodings associated to a [blog post](http://blog.hablapps.com/2016/11/11/lens-state-is-your-father/). There, we provide `IOCoalgebra` representations for several optics, along with some interesting insights.
+* [Lens, State Is Your Father](src/test/scala/LensStateIsYourFather.scala). Encodings associated to a [blog post](https://blog.hablapps.com/2016/11/10/lens-state-is-your-father/). There, we provide `IOCoalgebra` representations for several optics, along with some interesting insights.
 
 Executing gists
 ===============
