@@ -25,7 +25,7 @@ class ObjectAlgebras extends FlatSpec with Matchers {
   // algebra. These "smart constructors" are actually church representations
   // of the basic operations of our algebra.
   object IOAlg {
-    object Syntax {
+    object syntax {
       def read[F[_]](implicit F: IOAlg[F]): F[String] =
         F.read
       def write[F[_]](s: String)(implicit F: IOAlg[F]): F[Unit] =
@@ -47,7 +47,7 @@ class ObjectAlgebras extends FlatSpec with Matchers {
   // Now we'll write some simple programs to show how we can use algebras
   // to produce interpretation-free programs.
   object GenericPrograms {
-    import IOAlg.Syntax._, cats.syntax.flatMap._, cats.syntax.functor._, cats.syntax.cartesian._
+    import IOAlg.syntax._, cats.syntax.flatMap._, cats.syntax.functor._, cats.syntax.cartesian._
 
     // In order to write this "echo" program, we need two algebras:
     // - IOAlg: to be able to write and read from somewhere
@@ -82,7 +82,7 @@ class ObjectAlgebras extends FlatSpec with Matchers {
   object EvalInstance {
     import GenericPrograms._
 
-    implicit object evalIO extends IOAlg[Eval] {
+    implicit object IOEval extends IOAlg[Eval] {
       def read: Eval[String] = 
         Eval.always(scala.io.StdIn.readLine)
 

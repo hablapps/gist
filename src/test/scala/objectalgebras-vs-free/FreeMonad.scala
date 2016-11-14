@@ -31,7 +31,7 @@ class FreeMonad extends FlatSpec with Matchers {
     // We add some syntax to ease the proccess of writing programs with this
     // algebra. These are usually called "smart constructors".
     object IO {
-      object Syntax {
+      object syntax {
         def read: IO[String] =
           Free.liftF(Read)
         def write(msg: String): IO[Unit] =
@@ -41,8 +41,8 @@ class FreeMonad extends FlatSpec with Matchers {
       // OPTIONAL: We could easily give an instance of `IOAlg[IO]`
       // object IOIOAlg extends IOAlg[IO] {
       //   def apply[A](fa: IOF[A]): IO[A] = fa match {
-      //     case Read => Syntax.read
-      //     case Write(msg) => Syntax.write(msg)
+      //     case Read => syntax.read
+      //     case Write(msg) => syntax.write(msg)
       //   }
       // }
     }
@@ -52,7 +52,7 @@ class FreeMonad extends FlatSpec with Matchers {
   // Now we'll write some simple programs to show how we can use algebras
   // to produce interpretation-free programs.
   object GenericPrograms {
-    import IO.Syntax._, cats.syntax.flatMap._, cats.syntax.cartesian._
+    import IO.syntax._, cats.syntax.flatMap._, cats.syntax.cartesian._
 
     // We just need to use the "smart constructors" defined above
     val echo: IO[Unit] =
