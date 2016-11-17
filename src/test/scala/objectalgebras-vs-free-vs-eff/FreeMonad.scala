@@ -1,7 +1,8 @@
 package org.hablapps.gist
 
 import org.scalatest._
-import cats.{Eval, MonadState, ~>}
+import cats._
+import cats.implicits._
 import cats.data.State
 import cats.free.Free
 import scala.util.Try
@@ -34,6 +35,7 @@ class FreeMonad extends FlatSpec with Matchers {
       object syntax {
         def read: IO[String] =
           Free.liftF(Read)
+
         def write(msg: String): IO[Unit] =
           Free.liftF(Write(msg))
       }
@@ -52,7 +54,8 @@ class FreeMonad extends FlatSpec with Matchers {
   // Now we'll write some simple programs to show how we can use algebras
   // to produce interpretation-free programs.
   object GenericPrograms {
-    import IO.syntax._, cats.syntax.flatMap._, cats.syntax.cartesian._
+    import IO.syntax._
+    import IO._
 
     // We just need to use the "smart constructors" defined above
     val echo: IO[Unit] =
