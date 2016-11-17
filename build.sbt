@@ -9,6 +9,7 @@ scalaBinaryVersion := "2.11"
 organization := "org.hablapps"
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
+
 addCompilerPlugin("org.scalamacros" %% "paradise" % "2.1.0" cross CrossVersion.full)
 
 resolvers ++= Seq(
@@ -16,7 +17,6 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats" % "0.8.1",
-  "org.scalaz" %% "scalaz-core" % "7.3.0-M4-HABLAPPS",
   "org.scalatest" %% "scalatest" % "3.0.0",
   "com.typesafe.akka" %% "akka-http-experimental" % "2.4.11",
   "com.typesafe.akka" %% "akka-http-spray-json-experimental" % "2.4.11",
@@ -29,8 +29,9 @@ libraryDependencies ++= Seq(
   "com.github.julien-truffaut"  %%  "monocle-unsafe"  % "1.3.2",
   "com.github.julien-truffaut"  %%  "monocle-law"     % "1.3.2" % "test",
   "org.atnos"                   %% "eff-cats"         % "2.0.0-RC26"
-
 )
+
+dependencyOverrides += "org.scalaz" %% "scalaz-core" % "7.2.7-HABLAPPS"
 
 scalacOptions ++= Seq(
   "-unchecked",
