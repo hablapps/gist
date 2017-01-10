@@ -18,6 +18,7 @@ do we implement both compositional and non-compositional interpreters.
 * [Bypassing Free](src/test/scala/objectalgebras-vs-free-vs-eff). Check out how we can exploit object algebras to obtain the very same benefits of free monads, in many circumstances.
 * [Coalgebras](src/test/scala/coalgebras). What are coalgebras? How are they related to monads and algebras in general? These gists attempt to shed some light to these questions.
 * [Lens, State Is Your Father](src/test/scala/LensStateIsYourFather.scala). Encodings associated to a [blog post](https://blog.hablapps.com/2016/11/10/lens-state-is-your-father/). There, we provide `IOCoalgebra` representations for several optics, along with some interesting insights.
+* [From "Hello, world!" to "Hello, monad!"](src/test/scala/hello-monads/). Code associated to the [blog post](https://blog.hablapps.com/2016/01/22/from-hello-world-to-hello-monad-part-i/) series about purification of effectful programs.
 
 Executing gists
 ===============
