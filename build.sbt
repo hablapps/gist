@@ -17,7 +17,7 @@ resolvers ++= Seq(
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.0",
-  "org.typelevel" %% "cats" % "0.8.1",
+  "org.typelevel" %% "cats" % "0.9.0",
   "com.typesafe.akka" %% "akka-http-experimental" % "2.4.11",
   "com.typesafe.akka" %% "akka-http-spray-json-experimental" % "2.4.11",
   "com.lihaoyi" %% "sourcecode" % "0.1.2",

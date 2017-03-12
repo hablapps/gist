@@ -19,6 +19,7 @@ do we implement both compositional and non-compositional interpreters.
 * [Coalgebras](src/test/scala/coalgebras). What are coalgebras? How are they related to monads and algebras in general? These gists attempt to shed some light to these questions.
 * [Lens, State Is Your Father](src/test/scala/LensStateIsYourFather.scala). Encodings associated to a [blog post](https://blog.hablapps.com/2016/11/10/lens-state-is-your-father/). There, we provide `IOCoalgebra` representations for several optics, along with some interesting insights.
 * [From "Hello, world!" to "Hello, monad!"](src/test/scala/hello-monads/). Code associated to the [blog post](https://blog.hablapps.com/2016/01/22/from-hello-world-to-hello-monad-part-i/) series about purification of effectful programs.
+* [Macro `monad`](src/main/scala/MonadMacro.scala). A macro that allows you to write monadic code using neither `flatMap`s nor for-comprehensions, but conventional syntax, i.e. semicolons. Written with a pure didactic purpose: showing that monadic code is, in essence, simple imperative code.
 
 Executing gists
 ===============
