@@ -109,7 +109,23 @@ class MonadMacro extends FunSpec with Matchers with Inside{
   describe("Monadic programs over particular APIs"){
     import cats.Id
 
-    // IO Algebra
+    // Non-declarative IO API & program
+
+    object NonDeclarative{
+
+      trait IO{
+        def read(): String
+        def write(msg: String): Unit
+      }
+
+      def echo()(io: IO): String = {
+        val msg: String = io.read()
+        io.write(msg)
+        msg
+      }
+    }
+    
+    // Declarative IO programs with type classes
 
     trait IO[P[_]]{
       def read(): P[String]
@@ -123,67 +139,90 @@ class MonadMacro extends FunSpec with Matchers with Inside{
       }
 
       // Side-effectful interpretation
+
       implicit object IOId extends IO[Id]{
         def read() = scala.io.StdIn.readLine()
         def write(msg: String) = println(msg)
       }
-    }
 
-    // Simple state transformation for purely functional testing
+      // Simple state transformation for purely functional testing
 
-    case class IOState(toBeRead: List[String], written: List[String])
+      case class IOState(toBeRead: List[String], written: List[String])
 
-    object IOState{
-      import cats.data.State
+      object IOState{
+        import cats.data.State
 
-      type Action[T] = State[IOState,T]
+        type Action[T] = State[IOState,T]
 
-      implicit object IOAction extends IO[Action]{
-        def read(): Action[String] =
-          for {
-            s <- State.get
-            _ <- State.set(s.copy(toBeRead = s.toBeRead.tail))
-          } yield s.toBeRead.head
+        implicit object IOAction extends IO[Action]{
+          def read(): Action[String] =
+            for {
+              s <- State.get
+              _ <- State.set(s.copy(toBeRead = s.toBeRead.tail))
+            } yield s.toBeRead.head
 
-        def write(msg: String): Action[Unit] =
-          State.modify{ s =>
-            s.copy(written = msg :: s.written)
-          }
+          def write(msg: String): Action[Unit] =
+            State.modify{ s =>
+              s.copy(written = msg :: s.written)
+            }
+        }
       }
     }
 
-    // Sample program
+    // Three different monadic versions of the non-declarative `echo` program
 
-    import IO.Syntax._, monad._
+    // With the `monad` macro
+    object WithMonadMacro{
+      import IO.Syntax._, monad._
 
-    def test[P[_]: Monad: IO](): P[String] = monad{
-      val msg: String = read().run
-      val _ : Unit = write(msg).run
-      msg
-    }
-
-    it("should work with Id"){
-      // Uncomment to be prompted at the console
-      // test[Id]() shouldBe "hi!"
-    }
-
-    it("should work with State"){
-      test[IOState.Action]().run(IOState(List("hi!"),List())).value shouldBe
-        (IOState(List(),List("hi!")),"hi!")
-    }
-
-    it("should work when no ValDef is used as well"){
-      
-      def test2[P[_]: Monad: IO](): P[String] = monad{
+      def echo[P[_]: Monad: IO](): P[String] = monad{
         val msg: String = read().run
         write(msg).run
         msg
       }
+    }
+    
+    // The `monad` macro generates the following program with
+    // `flatMap`s and `pure`.
+    object WithFlatMap{
+      import IO.Syntax._
+
+      def echo[P[_]: Monad: IO](): P[String] = 
+        Monad[P].flatMap(read()){ msg => 
+          Monad[P].flatMap(write(msg)){ _ => 
+            Monad[P].pure(msg)
+          }
+        }
+    }
       
-      test2[IOState.Action]().run(IOState(List("hi!"),List())).value shouldBe
-        (IOState(List(),List("hi!")),"hi!")
-    }    
+    // An alternative version with for-comprehensions. Just for
+    // comparison with the previous ones.
+    object WithForComprehensions{
+      import IO.Syntax._, cats.syntax.flatMap._, cats.syntax.functor._
+
+      def echo[P[_]: Monad: IO](): P[String] = for{
+        msg <- read()
+        _ <- write(msg)
+      } yield msg  
+    }
+
+    // Test it!
+
+    it("should work with State"){
+      import IO.IOState
+
+      val initialState = IOState(List("hi!"),List())
+
+      WithMonadMacro.echo[IOState.Action]().run(initialState).value shouldBe
+        WithFlatMap.echo[IOState.Action]().run(initialState).value 
+
+      WithMonadMacro.echo[IOState.Action]().run(initialState).value shouldBe
+        WithForComprehensions.echo[IOState.Action]().run(initialState).value 
+    }
+
+    it("should work with Id"){
+      // Uncomment to be prompted at the console
+      // echo[Id]() shouldBe "hi!"
+    }
   }
-
-
 }

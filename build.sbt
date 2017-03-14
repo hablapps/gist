@@ -1,4 +1,4 @@
-name := "hablapps"
+name := "gist"
 
 scalaVersion := "2.11.8"
 
@@ -7,6 +7,8 @@ scalaOrganization := "org.typelevel"
 scalaBinaryVersion := "2.11"
 
 organization := "org.hablapps"
+
+version := "0.1-SNAPSHOT"
 
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.3")
 
