@@ -8,8 +8,8 @@ import scala.io.StdIn.readLine
  *
  * https://purelyfunctional.wordpress.com/?p=1195
  *
- * It continues the code for the first and second part of this series in files
- * partI.scala and partII.scala.
+ * It continues the code for the first and second part of this series that
+ * you can find in files ./partI.scala and ./partII.scala.
  */
 
 // First objection: Readability
