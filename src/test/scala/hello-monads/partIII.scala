@@ -49,7 +49,7 @@ object Step6 {
   object ProgramWithInfixOps{
     import IOProgram.Syntax._
 
-    def echo: IOProgram[String] =
+    def echo(): IOProgram[String] =
       read() flatMap { msg =>
         write(msg) map { _ =>
           msg
