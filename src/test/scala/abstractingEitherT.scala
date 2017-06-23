@@ -12,6 +12,7 @@ class AbstractingEitherT extends FunSpec with Matchers{
   import cats.Monad
 
   // These are my domain-dependent instructions
+
   trait MyAPI[P[_]]{
     def bar(): P[Int]
   }
@@ -29,15 +30,17 @@ class AbstractingEitherT extends FunSpec with Matchers{
    */
 
   object WithEitherT{
-    import cats.syntax.applicative._, cats.syntax.flatMap._
 
     // Business logic 
     object BusinessLogic{
       import cats.data.EitherT
+      import cats.syntax.applicative._, cats.syntax.flatMap._
 
-      def foo[P[_]: MyAPI: Monad](i: Int): EitherT[P,Throwable,String] = 
+      type Program[P[_],T] = EitherT[P,Throwable,T]
+
+      def foo[P[_]: MyAPI: Monad](i: Int): Program[P,String] = 
         EitherT.liftT[P,Throwable,Int](MyAPI[P].bar()) >>= { j => 
-          if ((j-i)>=0) EitherT.right("ok".pure[P])
+          if ((j-i)>=0) "ok".pure[Program[P,?]]
           else EitherT.left((NegativeNumber(j-i): Throwable).pure[P])
         }
     }
