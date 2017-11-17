@@ -22,9 +22,15 @@ object Lens{
         // a => nat(State.put(a)).exec)
         s => a => nat(State.put(a)).exec(s))
 
+    implicit class TupleOps[A,B](t: (A,B)){
+      def map1[C](f: A => C): (C,B) =
+        (f(t._1),t._2)
+    }
+
     def to[S,A](lens: Lens[S,A]): NatLens[S,A] =
       λ[State[A,?] ~> State[S,?]]{
-        st => State(s => st(lens.get(s)).swap.map(lens.put(s)).swap)
+        st => State(s => st(lens.get(s)).map1(lens.put(s)))
       }
   }
+
 }
