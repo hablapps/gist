@@ -1,0 +1,104 @@
+============================================
+GENERAL DEFINITIONS
+============================================
+
+(a: F[A], b: F[B]).mapN(f: (A, B) => C): F[C] =def=
+  f (a,b)
+
+(a: A, b: B).map1(f: A => C): (C,B) =def=
+  (f a, b)
+
+type State s a =def=
+  s -> (s,a)
+
+((p: State s a) >>= f: A => State s b): State s b =def=
+  s -> (p s).mapN((s, a) -> f(a)(s))
+
+============================================
+LAW: map1-mapN fusion
+
+  t.map1(f: A => B).mapN(g: (B,C)=>D): D =
+    t.mapN((a,c)->g(f(a),c))
+============================================
+
+============================================
+LAW: mapN distribution
+
+  t.mapN((g: C => D) . (f: (A,B)=>C)) =
+    g . t.mapN(f)
+============================================
+
+
+============================================
+φ DEFINITION
+============================================
+
+φ(p: State a t): State s t =def=
+  s -> p(get s).map1(put s)
+
+============================================
+LAW: φ( p >>= t -> q ) = φ(p) >>= t -> φ(q)
+============================================
+
+φ(p) >>= t -> φ(q)
+
+= [ def. >>= ]
+s -> φ(p)(s).mapN((s,t) -> φ(q)(s))
+
+= [ def. φ ]
+s -> (s->p(get s).map1(set s))(s).mapN((s,t) -> (s -> q(get s).map1(set s))(s))
+
+= [ def. apply/abstr. ]
+s -> p(get s).map1(set s).mapN((s,t) -> q(get s).map1(set s))
+
+= [ law map1-mapN fusion ]
+s -> p(get s).mapN((a,t) -> q(get (set s a)).map1(set (set s a)))
+
+= [ law set-get, law set-set ]
+s -> p(get s).mapN((a,t) -> q(a).map1(set s))
+
+= [ law mapN distribution ]
+s -> p(get s).mapN((a,t) -> q(a)).map1(set s)
+
+= [ def. apply/abstr. ]
+s -> (a -> p(a).mapN((a,t) -> q(a)))(get s).map1(set s)
+
+= [ def. >>= ]
+s -> (p >>= t -> q)(get s).map1(set s)
+
+= [ def. φ ]
+φ(p >>= t -> q)
+
+============================================
+LAW: φ( return_a t ) = return_s a
+============================================
+
+φ( return_a t )
+
+= [ def. φ ]
+s -> (return_a t)(get s).map1(set s)
+
+= [ def. return]
+s -> (a -> (a,t))(get s).map1(set s)
+
+= [ def. apply/abstr. ]
+s -> (get s, t).map1(set s)
+
+= [ def. map1 ]
+s -> (set s (get s), t)
+
+= [ law get-set ]
+s -> (s, t)
+
+= [ def. return ]
+return_s t
+
+
+
+
+
+
+
+
+
+
